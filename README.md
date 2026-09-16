@@ -4,9 +4,9 @@
 
 ## 当前状态
 
-- 当前阶段：阶段 5 / 后端验收与数据源适配
-- 已完成：服务启动、SQLite 初始化、健康检查、统一错误响应、演示行情、个股详情、市场噪音分组、自选股、模拟买卖、持仓、盈亏、投资决策日志和可替换行情 provider
-- 尚未实现：真实行情供应商绑定、新闻抓取、前端页面
+- 当前阶段：阶段 6 / 前端 MVP
+- 已完成：后端基础、演示行情、个股详情、市场噪音分组、自选股、模拟买卖、持仓、盈亏、投资决策日志、可替换行情 provider，以及前端 Dashboard
+- 尚未实现：真实行情供应商绑定、新闻抓取、前后端发布
 - 开发分支：`codex/backend-foundation`
 
 ## 技术栈
@@ -65,6 +65,12 @@ test/
 docs/
   superpowers/specs/   产品设计文档
   superpowers/plans/   分阶段实现计划
+
+frontend/
+  src/App.tsx       Dashboard、噪音雷达和模拟交易表单
+  src/api.ts        后端 REST API 客户端
+  src/view-model.ts 金额和涨跌显示格式化
+  src/styles.css    响应式深色界面
 ```
 
 ## 已实现 API
@@ -84,12 +90,28 @@ docs/
 | GET | `/decision-logs` | 查询决策日志及当前结果 |
 | POST | `/decision-logs` | 保存股票、方向、价格和买卖理由 |
 
-后续阶段会加入自选股、模拟订单、组合和决策日志 API。
+后端阶段 API 已实现；前端当前覆盖市场总览、自选股、组合摘要、噪音雷达和模拟下单入口。
+
+## 前端运行
+
+```bash
+cd frontend
+npm install
+npm test -- --run
+npm run build
+npm run dev
+```
+
+前端默认请求 `http://127.0.0.1:3000`。如果后端地址不同，可设置 `VITE_API_URL`：
+
+```bash
+VITE_API_URL=http://127.0.0.1:3001 npm run dev
+```
 
 ## 测试结果
 
-阶段 5 当前包含 14 个 Vitest 测试：基础服务、市场 API、自选股、买入、卖出、盈亏、非法订单、决策日志和 provider 合约。最后验证结果为 **14 passed**，TypeScript `--noEmit` 编译通过。
+阶段 6 后端包含 14 个 Vitest 测试，前端包含 1 个 Vitest 测试；后端 TypeScript 和前端 Vite 生产构建均通过。前端测试覆盖金额和涨跌格式化。
 
 ## 作品集说明
 
-这是一个后端优先的阶段性作品。阶段 5 默认使用 `DemoMarketDataProvider`，账户初始现金为 100,000 USD，便于下载后立即运行；接入真实延迟行情时只需实现 `MarketDataProvider` 接口并在 `buildApp` 注入，供应商密钥不会写入仓库。所有阶段会使用独立提交并同步到 GitHub 分支，README 会持续记录实际使用的环境、工具版本、运行方式、测试结果和未完成范围。项目只提供模拟交易和信息整理能力，不执行真实下单，也不构成投资建议。
+这是一个后端优先的阶段性作品。阶段 6 默认使用 `DemoMarketDataProvider`，账户初始现金为 100,000 USD，前端通过 REST API 调用后端；接入真实延迟行情时只需实现 `MarketDataProvider` 接口并在 `buildApp` 注入，供应商密钥不会写入仓库。所有阶段会使用独立提交并同步到 GitHub 分支，README 会持续记录实际使用的环境、工具版本、运行方式、测试结果和未完成范围。项目只提供模拟交易和信息整理能力，不执行真实下单，也不构成投资建议。
