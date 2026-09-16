@@ -127,6 +127,8 @@ python scripts/download_history.py AAPL MSFT NVDA TSLA AMZN SPY QQQ --period 2y
 
 下载结果包含 Date/Open/High/Low/Close/Volume，后续策略模块会据此计算 EMA、RSI、MACD、ATR、相对 SPY 强弱和成交量确认。Yahoo Finance 数据仅供信息参考；公开作品集发布下载器和计算代码，不打包再分发行情文件。
 
+下载后可调用 `GET /strategy/AAPL` 获取评分、指标和逐条证据；历史不足 60 根日线时接口会返回 `INSUFFICIENT DATA`，不会强行给出买卖结论。
+
 ## 作品集说明
 
 这是一个后端优先的阶段性作品。阶段 7 默认使用 `DemoMarketDataProvider`，账户初始现金为 100,000 USD，前端通过 REST API 调用后端；接入真实延迟行情时只需实现 `MarketDataProvider` 接口并在 `buildApp` 注入，供应商密钥不会写入仓库。所有阶段会使用独立提交并同步到 GitHub 分支，README 会持续记录实际使用的环境、工具版本、运行方式、测试结果和未完成范围。项目只提供模拟交易和信息整理能力，不执行真实下单，也不构成投资建议。

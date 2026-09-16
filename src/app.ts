@@ -4,6 +4,8 @@ import { initDatabase } from './db.js';
 import { DemoMarketDataProvider, type MarketDataProvider } from './market-provider.js';
 import { addWatchlist, createOrder, getPortfolio, initTradingSchema, listOrders, listWatchlist, removeWatchlist } from './paper-trading.js';
 import { createDecisionLog, initDecisionLogSchema, listDecisionLogs } from './decision-log.js';
+import { loadHistory } from './history.js';
+import { scoreStrategy } from './strategy.js';
 
 export async function buildApp(options: { databasePath: string; marketDataProvider?: MarketDataProvider }): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
@@ -15,6 +17,10 @@ export async function buildApp(options: { databasePath: string; marketDataProvid
   app.get('/health', async () => ({ status: 'ok' }));
   app.get('/market/overview', async () => marketDataProvider.getOverview());
   app.get('/market/noise', async () => marketDataProvider.getNoiseGroups());
+  app.get<{ Params: { symbol: string } }>('/strategy/:symbol', async (request, reply) => {
+    try { return { symbol: request.params.symbol.toUpperCase(), ...scoreStrategy(await loadHistory(request.params.symbol)) }; }
+    catch { return reply.code(404).send({ error: { code: 'HISTORY_NOT_FOUND', message: 'Local history not found; run the downloader first' } }); }
+  });
   app.get<{ Params: { symbol: string } }>('/stocks/:symbol', async (request, reply) => {
     const stock = await marketDataProvider.getStock(request.params.symbol);
     if (!stock) return reply.code(404).send({ error: { code: 'STOCK_NOT_FOUND', message: 'Stock not found' } });

@@ -1,0 +1,42 @@
+export type Candle = { date: string; open: number; high: number; low: number; close: number; volume: number };
+export type StrategyResult = {
+  signal: 'BUY CANDIDATE' | 'WATCH' | 'AVOID' | 'INSUFFICIENT DATA';
+  score: number | null;
+  indicators: { close: number; sma50: number; ema20: number; ema50: number; rsi14: number; macd: number; macdSignal: number; atr14: number; volumeRatio: number };
+  evidence: { supporting: string[]; opposing: string[] };
+};
+
+const average = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length;
+const sma = (values: number[], period: number) => average(values.slice(-period));
+const ema = (values: number[], period: number) => {
+  const multiplier = 2 / (period + 1); let result = values[0];
+  for (const value of values.slice(1)) result = (value - result) * multiplier + result;
+  return result;
+};
+const rsi = (values: number[], period: number) => {
+  const changes = values.slice(1).map((value, index) => value - values[index]);
+  const gains = changes.map((change) => Math.max(change, 0)); const losses = changes.map((change) => Math.max(-change, 0));
+  const avgGain = average(gains.slice(-period)); const avgLoss = average(losses.slice(-period));
+  return avgLoss === 0 ? 100 : Number((100 - (100 / (1 + avgGain / avgLoss))).toFixed(2));
+};
+const atr = (candles: Candle[], period: number) => {
+  const ranges = candles.slice(1).map((candle, index) => Math.max(candle.high - candle.low, Math.abs(candle.high - candles[index].close), Math.abs(candle.low - candles[index].close)));
+  return Number(average(ranges.slice(-period)).toFixed(2));
+};
+
+export function scoreStrategy(candles: Candle[]): StrategyResult {
+  const empty = { close: 0, sma50: 0, ema20: 0, ema50: 0, rsi14: 0, macd: 0, macdSignal: 0, atr14: 0, volumeRatio: 0 };
+  if (candles.length < 60) return { signal: 'INSUFFICIENT DATA', score: null, indicators: empty, evidence: { supporting: [], opposing: ['至少需要 60 根日线数据'] } };
+  const closes = candles.map((candle) => candle.close); const volumes = candles.map((candle) => candle.volume);
+  const ema20 = ema(closes, 20); const ema50 = ema(closes, 50); const fastSeries = closes.map((_, index) => ema(closes.slice(0, index + 1), 12) - ema(closes.slice(0, index + 1), 26));
+  const macd = fastSeries.at(-1) ?? 0; const macdSignal = ema(fastSeries.slice(-35), 9); const volumeRatio = volumes.at(-1)! / sma(volumes, 20);
+  const indicators = { close: closes.at(-1)!, sma50: Number(sma(closes, 50).toFixed(2)), ema20: Number(ema20.toFixed(2)), ema50: Number(ema50.toFixed(2)), rsi14: rsi(closes, 14), macd: Number(macd.toFixed(4)), macdSignal: Number(macdSignal.toFixed(4)), atr14: atr(candles, 14), volumeRatio: Number(volumeRatio.toFixed(2)) };
+  let score = 0; const supporting: string[] = []; const opposing: string[] = [];
+  if (ema20 > ema50) { score += 30; supporting.push('EMA20 高于 EMA50，短期趋势向上'); } else opposing.push('EMA20 低于 EMA50，趋势未确认');
+  if (closes.at(-1)! > indicators.sma50) { score += 10; supporting.push('价格位于 SMA50 上方'); } else opposing.push('价格低于 SMA50');
+  if (macd > macdSignal) { score += 20; supporting.push('MACD 高于信号线'); } else opposing.push('MACD 尚未形成多头确认');
+  if (indicators.rsi14 >= 45 && indicators.rsi14 <= 70) { score += 20; supporting.push(`RSI ${indicators.rsi14} 处于健康动量区间`); } else if (indicators.rsi14 > 70) { score += 5; opposing.push(`RSI ${indicators.rsi14} 偏高，追涨风险增加`); } else opposing.push(`RSI ${indicators.rsi14} 偏弱`);
+  if (volumeRatio >= 1) { score += 15; supporting.push(`成交量为 20 日均量的 ${indicators.volumeRatio} 倍`); } else opposing.push(`成交量仅为 20 日均量的 ${indicators.volumeRatio} 倍`);
+  const signal = score >= 60 ? 'BUY CANDIDATE' : score >= 35 ? 'WATCH' : 'AVOID';
+  return { signal, score, indicators, evidence: { supporting, opposing } };
+}
