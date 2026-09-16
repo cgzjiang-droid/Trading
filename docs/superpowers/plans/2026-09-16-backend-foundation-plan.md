@@ -6,7 +6,7 @@
 
 **Architecture:** 使用 Fastify 提供 REST API，SQLite 保存应用数据。阶段 1 只实现服务启动、配置、健康检查、统一错误响应和数据库连接，不实现行情、订单或前端。
 
-**Tech Stack:** Node.js 20+, TypeScript, Fastify, better-sqlite3, Vitest, tsx。
+**Tech Stack:** Node.js 22+, TypeScript, Fastify, Node 内置 `node:sqlite`, Vitest, tsx。
 
 **Spec:** `docs/superpowers/specs/2026-09-16-us-stock-mvp-design.md`
 
@@ -123,7 +123,7 @@ Expected: FAIL because `src/db.ts` does not exist.
 
 - [ ] **Step 3: 写最小实现**
 
-使用 `better-sqlite3` 打开路径，执行：
+使用 Node 内置 `node:sqlite` 的 `DatabaseSync` 打开路径，执行：
 
 ```sql
 CREATE TABLE IF NOT EXISTS schema_meta (
