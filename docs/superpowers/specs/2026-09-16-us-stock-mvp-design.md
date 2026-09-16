@@ -46,11 +46,24 @@
 
 ## 技术方案
 
-- React、Vite、TypeScript。
-- 浏览器 `localStorage` 保存自选股、模拟订单、持仓和决策日志。
-- `MarketDataProvider` 提供指数、股票报价、历史价格和信息流；默认使用演示数据。
+- 后端先行：Node.js、TypeScript、Fastify、SQLite、REST API。
+- 后端使用 SQLite 保存自选股、模拟订单、持仓和决策日志；暂不做登录，数据属于单个本地用户。
+- `MarketDataProvider` 提供指数、股票报价、历史价格和信息流；默认使用演示数据，后续替换为延迟行情供应商。
 - `AnalysisProvider` 接收结构化行情和信息，返回摘要、分级信息和风险提示；默认实现为规则化演示实现，后续替换为模型调用。
-- 页面状态保持简单，先不引入后端和状态管理框架。
+- 前端在后端 API 和测试稳定后再开始，使用 React、Vite、TypeScript 调用 REST API。
+
+## 后端 API
+
+- `GET /health`：返回服务状态。
+- `GET /market/overview`：返回指数、自选股行情和市场摘要。
+- `GET /stocks/:symbol`：返回单只股票报价、走势和关联信息。
+- `GET /watchlist`、`POST /watchlist`、`DELETE /watchlist/:symbol`：管理自选股。
+- `GET /market/noise`：返回按重要、一般、噪音、风险分组的信息。
+- `GET /portfolio`：返回现金、持仓市值、总资产和盈亏。
+- `POST /orders`、`GET /orders`：创建并查询市价模拟订单。
+- `GET /decision-logs`、`POST /decision-logs`：创建并查询投资决策日志。
+
+后端所有写入接口都校验股票代码、数量、现金和持仓约束；失败时返回明确的 4xx 错误，不改变账户状态。
 
 ## 核心数据
 
