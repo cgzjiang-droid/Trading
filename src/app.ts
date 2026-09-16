@@ -18,7 +18,7 @@ export async function buildApp(options: { databasePath: string; marketDataProvid
   app.get('/market/overview', async () => marketDataProvider.getOverview());
   app.get('/market/noise', async () => marketDataProvider.getNoiseGroups());
   app.get<{ Params: { symbol: string } }>('/strategy/:symbol', async (request, reply) => {
-    try { return { symbol: request.params.symbol.toUpperCase(), ...scoreStrategy(await loadHistory(request.params.symbol)) }; }
+    try { return { symbol: request.params.symbol.toUpperCase(), ...scoreStrategy(await loadHistory(request.params.symbol), await loadHistory('SPY')) }; }
     catch { return reply.code(404).send({ error: { code: 'HISTORY_NOT_FOUND', message: 'Local history not found; run the downloader first' } }); }
   });
   app.get<{ Params: { symbol: string } }>('/stocks/:symbol', async (request, reply) => {
