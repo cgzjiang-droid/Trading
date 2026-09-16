@@ -1,19 +1,20 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import { initDatabase } from './db.js';
-import { getNoiseGroups, getOverview, getStock } from './market-data.js';
+import { DemoMarketDataProvider, type MarketDataProvider } from './market-provider.js';
 import { addWatchlist, createOrder, getPortfolio, initTradingSchema, listOrders, listWatchlist, removeWatchlist } from './paper-trading.js';
 import { createDecisionLog, initDecisionLogSchema, listDecisionLogs } from './decision-log.js';
 
-export async function buildApp(options: { databasePath: string }): Promise<FastifyInstance> {
+export async function buildApp(options: { databasePath: string; marketDataProvider?: MarketDataProvider }): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
+  const marketDataProvider = options.marketDataProvider ?? new DemoMarketDataProvider();
   initDatabase(options.databasePath);
   initTradingSchema();
   initDecisionLogSchema();
   app.get('/health', async () => ({ status: 'ok' }));
-  app.get('/market/overview', async () => getOverview());
-  app.get('/market/noise', async () => getNoiseGroups());
+  app.get('/market/overview', async () => marketDataProvider.getOverview());
+  app.get('/market/noise', async () => marketDataProvider.getNoiseGroups());
   app.get<{ Params: { symbol: string } }>('/stocks/:symbol', async (request, reply) => {
-    const stock = getStock(request.params.symbol);
+    const stock = await marketDataProvider.getStock(request.params.symbol);
     if (!stock) return reply.code(404).send({ error: { code: 'STOCK_NOT_FOUND', message: 'Stock not found' } });
     return stock;
   });

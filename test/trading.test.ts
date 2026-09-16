@@ -28,6 +28,12 @@ describe('watchlist and paper trading APIs', () => {
     expect(response.json()).toEqual({ error: { code: 'INSUFFICIENT_POSITION', message: 'Insufficient position' } });
   });
 
+  it('rejects a non-positive or fractional quantity', async () => {
+    const response = await app.inject({ method: 'POST', url: '/orders', payload: { symbol: 'AAPL', side: 'buy', quantity: 0.5 } });
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ error: { code: 'INVALID_QUANTITY', message: 'Quantity must be a positive integer' } });
+  });
+
   it('sells shares and calculates realized profit', async () => {
     await app.inject({ method: 'POST', url: '/orders', payload: { symbol: 'NVDA', side: 'buy', quantity: 1 } });
     const sell = await app.inject({ method: 'POST', url: '/orders', payload: { symbol: 'NVDA', side: 'sell', quantity: 1 } });
