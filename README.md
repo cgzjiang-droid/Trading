@@ -114,6 +114,19 @@ VITE_API_URL=http://127.0.0.1:3001 npm run dev
 
 阶段 7 后端和前端共包含 15 个 Vitest 测试；后端 TypeScript 和前端 Vite 生产构建均通过。另已用备用端口完成 `/health` 和 `/market/overview` 联调请求验证。
 
+## 本地真实历史行情
+
+使用 Yahoo Finance 的 `yfinance` 下载本地美股日线 OHLCV 数据。数据默认保存到 `data/history/`，该目录已加入 `.gitignore`，不会上传到 GitHub。
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python scripts/download_history.py AAPL MSFT NVDA TSLA AMZN SPY QQQ --period 2y
+```
+
+下载结果包含 Date/Open/High/Low/Close/Volume，后续策略模块会据此计算 EMA、RSI、MACD、ATR、相对 SPY 强弱和成交量确认。Yahoo Finance 数据仅供信息参考；公开作品集发布下载器和计算代码，不打包再分发行情文件。
+
 ## 作品集说明
 
 这是一个后端优先的阶段性作品。阶段 7 默认使用 `DemoMarketDataProvider`，账户初始现金为 100,000 USD，前端通过 REST API 调用后端；接入真实延迟行情时只需实现 `MarketDataProvider` 接口并在 `buildApp` 注入，供应商密钥不会写入仓库。所有阶段会使用独立提交并同步到 GitHub 分支，README 会持续记录实际使用的环境、工具版本、运行方式、测试结果和未完成范围。项目只提供模拟交易和信息整理能力，不执行真实下单，也不构成投资建议。
