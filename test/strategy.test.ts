@@ -17,6 +17,8 @@ describe('strategy scoring', () => {
     expect(result.indicators.ema20).toBeGreaterThan(result.indicators.ema50);
     expect(result.evidence.supporting.length).toBeGreaterThan(0);
     expect(result.evidence.opposing).toEqual(expect.any(Array));
+    expect(result.plan.stopLoss).toBeLessThan(result.indicators.close);
+    expect(result.plan.takeProfit).toBeGreaterThan(result.indicators.close);
   });
 
   it('vetoes a long setup when the market regime is bearish', () => {
