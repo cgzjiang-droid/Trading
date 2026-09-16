@@ -13,4 +13,5 @@ export const api = {
   orders: () => request<any[]>('/orders'),
   createOrder: (body: object) => request<any>('/orders', { method: 'POST', body: JSON.stringify(body) }),
   addWatchlist: (symbol: string) => request<any>('/watchlist', { method: 'POST', body: JSON.stringify({ symbol }) }),
+  strategy: (symbol: string) => request<any>(`/strategy/${symbol}`),
 };
