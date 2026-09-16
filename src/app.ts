@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
 import { initDatabase } from './db.js';
 import { DemoMarketDataProvider, type MarketDataProvider } from './market-provider.js';
 import { addWatchlist, createOrder, getPortfolio, initTradingSchema, listOrders, listWatchlist, removeWatchlist } from './paper-trading.js';
@@ -7,6 +8,7 @@ import { createDecisionLog, initDecisionLogSchema, listDecisionLogs } from './de
 export async function buildApp(options: { databasePath: string; marketDataProvider?: MarketDataProvider }): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   const marketDataProvider = options.marketDataProvider ?? new DemoMarketDataProvider();
+  await app.register(cors, { origin: true });
   initDatabase(options.databasePath);
   initTradingSchema();
   initDecisionLogSchema();
