@@ -5,7 +5,7 @@
 ## 当前状态
 
 - 当前阶段：阶段 7 / 联调与发布准备
-- 已完成：后端基础、演示行情、个股详情、市场噪音分组、自选股、模拟买卖、持仓、盈亏、投资决策日志、可替换行情 provider、前端 Dashboard 和 CORS 联调配置
+- 已完成：后端基础、演示行情、Yahoo 最新报价、自选股、个股策略分析、市场噪音分组、模拟买卖、持仓盈亏、投资决策日志，以及简洁三栏前端研究台
 - 尚未实现：实时 WebSocket 全量行情、新闻抓取、正式部署
 - 开发分支：`codex/backend-foundation`
 
@@ -67,7 +67,7 @@ docs/
   superpowers/plans/   分阶段实现计划
 
 frontend/
-  src/App.tsx       Dashboard、噪音雷达和模拟交易表单
+  src/App.tsx       三栏研究台：自选股、策略判断、模拟交易
   src/api.ts        后端 REST API 客户端
   src/view-model.ts 金额和涨跌显示格式化
   src/styles.css    响应式深色界面
@@ -90,7 +90,7 @@ frontend/
 | GET | `/decision-logs` | 查询决策日志及当前结果 |
 | POST | `/decision-logs` | 保存股票、方向、价格和买卖理由 |
 
-后端阶段 API 已实现；前端当前覆盖市场总览、自选股、组合摘要、噪音雷达和模拟下单入口。
+后端阶段 API 已实现；前端当前覆盖市场总览、自选股、策略判断、组合摘要、市场信息和模拟下单入口。
 
 ## 前端运行
 
@@ -112,7 +112,7 @@ VITE_API_URL=http://127.0.0.1:3001 npm run dev
 
 ## 测试结果
 
-阶段 7 后端和前端共包含 15 个 Vitest 测试；后端 TypeScript 和前端 Vite 生产构建均通过。另已用备用端口完成 `/health` 和 `/market/overview` 联调请求验证。
+阶段 7 后端和前端共包含 19 个 Vitest 测试；后端 TypeScript 和前端 Vite 生产构建均通过。另已用备用端口完成 `/health` 和 `/market/overview` 联调请求验证。
 
 ## 本地真实历史行情
 
