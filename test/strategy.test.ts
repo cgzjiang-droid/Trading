@@ -12,10 +12,20 @@ describe('strategy scoring', () => {
   it('returns a signal with indicators and explainable evidence', () => {
     const result = scoreStrategy(candles());
     expect(result.signal).toBe('BUY CANDIDATE');
+    expect(result.action).toBe('BUY');
     expect(result.score).toBeGreaterThanOrEqual(60);
     expect(result.indicators.ema20).toBeGreaterThan(result.indicators.ema50);
     expect(result.evidence.supporting.length).toBeGreaterThan(0);
     expect(result.evidence.opposing).toEqual(expect.any(Array));
+  });
+
+  it('vetoes a long setup when the market regime is bearish', () => {
+    const stock = candles();
+    const market = candles().map((candle, index) => ({ ...candle, close: 300 - index * 0.25, open: 300 - index * 0.25, high: 301 - index * 0.25, low: 299 - index * 0.25 }));
+    const result = scoreStrategy(stock, market);
+    expect(result.regime).toBe('BEAR');
+    expect(result.action).toBe('AVOID');
+    expect(result.evidence.opposing.join(' ')).toContain('市场环境');
   });
 
   it('refuses to make a decision when history is too short', () => {
