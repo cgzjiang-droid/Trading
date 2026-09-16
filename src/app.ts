@@ -1,7 +1,7 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import { initDatabase } from './db.js';
-import { DemoMarketDataProvider, type MarketDataProvider } from './market-provider.js';
+import { DemoMarketDataProvider, YahooLatestProvider, type MarketDataProvider } from './market-provider.js';
 import { addWatchlist, createOrder, getPortfolio, initTradingSchema, listOrders, listWatchlist, removeWatchlist } from './paper-trading.js';
 import { createDecisionLog, initDecisionLogSchema, listDecisionLogs } from './decision-log.js';
 import { loadHistory } from './history.js';
@@ -9,7 +9,7 @@ import { scoreStrategy } from './strategy.js';
 
 export async function buildApp(options: { databasePath: string; marketDataProvider?: MarketDataProvider }): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
-  const marketDataProvider = options.marketDataProvider ?? new DemoMarketDataProvider();
+  const marketDataProvider = options.marketDataProvider ?? (process.env.YAHOO_LATEST === '1' ? new YahooLatestProvider() : new DemoMarketDataProvider());
   await app.register(cors, { origin: true });
   initDatabase(options.databasePath);
   initTradingSchema();

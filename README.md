@@ -131,4 +131,15 @@ python scripts/download_history.py AAPL MSFT NVDA TSLA AMZN SPY QQQ --period 2y
 
 ## 作品集说明
 
-这是一个后端优先的阶段性作品。阶段 7 默认使用 `DemoMarketDataProvider`，账户初始现金为 100,000 USD，前端通过 REST API 调用后端；接入真实延迟行情时只需实现 `MarketDataProvider` 接口并在 `buildApp` 注入，供应商密钥不会写入仓库。所有阶段会使用独立提交并同步到 GitHub 分支，README 会持续记录实际使用的环境、工具版本、运行方式、测试结果和未完成范围。项目只提供模拟交易和信息整理能力，不执行真实下单，也不构成投资建议。
+这是一个后端优先的阶段性作品。账户初始现金为 100,000 USD，前端通过 REST API 调用后端。所有阶段会使用独立提交并同步到 GitHub 分支，README 会持续记录实际使用的环境、工具版本、运行方式、测试结果和未完成范围。项目只提供模拟交易和信息整理能力，不执行真实下单，也不构成投资建议。
+
+## 免费最新报价模式
+
+后端可选用 Yahoo Finance 最新报价轮询，不需要 API Key；前端每 30 秒刷新一次，并根据 `source` 显示 `YAHOO LATEST` 或回退状态：
+
+```bash
+PORT=3310 YAHOO_LATEST=1 npm run dev
+VITE_API_URL=http://127.0.0.1:3310 npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+这是免费个人研究模式，不等同于券商级全市场实时行情；页面显示报价时间，实时源失败时标记“实时源不可用”，不会把演示快照冒充实时数据。
