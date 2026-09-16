@@ -12,6 +12,7 @@ export function initDatabase(databasePath: string): DatabaseSync {
       value TEXT NOT NULL
     );
   `);
+  database.prepare("INSERT OR IGNORE INTO schema_meta (key, value) VALUES ('version', '1')").run();
   return database;
 }
 
