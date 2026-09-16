@@ -4,9 +4,9 @@
 
 ## 当前状态
 
-- 当前阶段：阶段 1 / 后端基础
-- 已完成：服务启动、SQLite 初始化、健康检查、统一错误响应
-- 尚未实现：真实行情、新闻抓取、噪音评分、模拟订单、前端页面
+- 当前阶段：阶段 2 / 行情与市场信息
+- 已完成：服务启动、SQLite 初始化、健康检查、统一错误响应、演示行情、个股详情、市场噪音分组
+- 尚未实现：真实行情、新闻抓取、模拟订单、前端页面
 - 开发分支：`codex/backend-foundation`
 
 ## 技术栈
@@ -50,10 +50,12 @@ src/
   config.ts    端口和数据库路径配置
   db.ts        SQLite 连接和 schema 初始化
   errors.ts    API 错误结构
+  market-data.ts  演示指数、股票、历史价格和市场信息 provider
 test/
   health.test.ts
   db.test.ts
   errors.test.ts
+  market.test.ts
 docs/
   superpowers/specs/   产品设计文档
   superpowers/plans/   分阶段实现计划
@@ -64,13 +66,16 @@ docs/
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
 | GET | `/health` | 返回服务健康状态 |
+| GET | `/market/overview` | 指数和演示自选股行情 |
+| GET | `/stocks/:symbol` | 个股报价、简化历史价格和关联信息 |
+| GET | `/market/noise` | 重要、一般、噪音、风险信息分组 |
 
-后续阶段会加入行情、自选股、市场噪音、模拟订单、组合和决策日志 API。
+后续阶段会加入自选股、模拟订单、组合和决策日志 API。
 
 ## 测试结果
 
-阶段 1 当前包含 3 个 Vitest 测试：健康检查、SQLite schema、统一错误响应。最后验证结果为 **3 passed**，TypeScript `--noEmit` 编译通过。
+阶段 2 当前包含 6 个 Vitest 测试：健康检查、SQLite schema、统一错误响应、市场总览、个股详情和噪音分组。最后验证结果为 **6 passed**，TypeScript `--noEmit` 编译通过。
 
 ## 作品集说明
 
-这是一个后端优先的阶段性作品。所有阶段会使用独立提交并同步到 GitHub 分支，README 会持续记录实际使用的环境、工具版本、运行方式、测试结果和未完成范围。项目只提供模拟交易和信息整理能力，不执行真实下单，也不构成投资建议。
+这是一个后端优先的阶段性作品。阶段 2 使用固定演示行情和信息，便于下载后立即运行；真实供应商接入会通过 provider adapter 完成。所有阶段会使用独立提交并同步到 GitHub 分支，README 会持续记录实际使用的环境、工具版本、运行方式、测试结果和未完成范围。项目只提供模拟交易和信息整理能力，不执行真实下单，也不构成投资建议。
